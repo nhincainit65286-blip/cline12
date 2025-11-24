@@ -2,6 +2,7 @@ import type { WorkspaceRoot } from "@shared/multi-root/types"
 import { HostProvider } from "@/hosts/host-provider"
 import { telemetryService } from "@/services/telemetry"
 import type { HistoryItem } from "@/shared/HistoryItem"
+import { t } from "@/shared/i18n"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import { getCwd, getDesktopDir } from "@/utils/path"
 import { StateManager } from "../storage/StateManager"
@@ -100,7 +101,7 @@ export async function setupWorkspaceManager({
 
 		HostProvider.window.showMessage({
 			type: ShowMessageType.WARNING,
-			message: "Failed to initialize workspace. Using single folder mode.",
+			message: t("workspace.initFailed"),
 		})
 		return manager
 	}

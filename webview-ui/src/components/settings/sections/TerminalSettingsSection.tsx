@@ -1,6 +1,7 @@
 import { UpdateTerminalConnectionTimeoutResponse } from "@shared/proto/index.cline"
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { PlatformType } from "@/config/platform.config"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { usePlatform } from "@/context/PlatformContext"
@@ -14,6 +15,7 @@ interface TerminalSettingsSectionProps {
 }
 
 export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = ({ renderSectionHeader }) => {
+	const { t } = useTranslation()
 	const {
 		shellIntegrationTimeout,
 		terminalReuseEnabled,

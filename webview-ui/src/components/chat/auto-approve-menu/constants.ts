@@ -1,72 +1,74 @@
 import { ActionMetadata } from "./types"
+import i18n from "@/i18n/config"
+
+const t = (key: string) => i18n.t(key)
 
 export const ACTION_METADATA: ActionMetadata[] = [
 	{
 		id: "readFiles",
-		label: "Read project files",
-		shortName: "Read",
-		description: "Allows Cline to read files within your workspace.",
+		label: t("settings.readProjectFiles"),
+		shortName: t("common.read"),
+		description: t("autoApprove.readProjectFilesDesc"),
 		icon: "codicon-search",
 		subAction: {
 			id: "readFilesExternally",
-			label: "Read all files",
-			shortName: "Read (all)",
-			description: "Allows Cline to read any file on your computer.",
+			label: t("settings.readAllFiles"),
+			shortName: t("autoApprove.readAll"),
+			description: t("autoApprove.readAllFilesDesc"),
 			icon: "codicon-folder-opened",
 			parentActionId: "readFiles",
 		},
 	},
 	{
 		id: "editFiles",
-		label: "Edit project files",
-		shortName: "Edit",
-		description: "Allows Cline to modify files within your workspace.",
+		label: t("settings.editProjectFiles"),
+		shortName: t("common.edit"),
+		description: t("autoApprove.editProjectFilesDesc"),
 		icon: "codicon-edit",
 		subAction: {
 			id: "editFilesExternally",
-			label: "Edit all files",
-			shortName: "Edit (all)",
-			description: "Allows Cline to modify any file on your computer.",
+			label: t("settings.editAllFiles"),
+			shortName: t("autoApprove.editAll"),
+			description: t("autoApprove.editAllFilesDesc"),
 			icon: "codicon-files",
 			parentActionId: "editFiles",
 		},
 	},
 	{
 		id: "executeSafeCommands",
-		label: "Execute safe commands",
-		shortName: "Safe Commands",
-		description:
-			"Allows Cline to execute safe terminal commands. If the model determines a command is potentially destructive, it will still require approval.",
+		label: t("settings.executeSafeCommands"),
+		shortName: t("autoApprove.safeCommands"),
+		description: t("autoApprove.executeSafeCommandsDesc"),
 		icon: "codicon-terminal",
 		subAction: {
 			id: "executeAllCommands",
-			label: "Execute all commands",
-			shortName: "All Commands",
-			description: "Allows Cline to execute all terminal commands. Use at your own risk.",
+			label: t("settings.executeAllCommands"),
+			shortName: t("autoApprove.allCommands"),
+			description: t("autoApprove.executeAllCommandsDesc"),
 			icon: "codicon-terminal-bash",
 			parentActionId: "executeSafeCommands",
 		},
 	},
 	{
 		id: "useBrowser",
-		label: "Use the browser",
-		shortName: "Browser",
-		description: "Allows Cline to launch and interact with any website in a browser.",
+		label: t("settings.useTheBrowser"),
+		shortName: t("settings.browser"),
+		description: t("autoApprove.useBrowserDesc"),
 		icon: "codicon-globe",
 	},
 	{
 		id: "useMcp",
-		label: "Use MCP servers",
+		label: t("settings.useMcpServers"),
 		shortName: "MCP",
-		description: "Allows Cline to use configured MCP servers which may modify filesystem or interact with APIs.",
+		description: t("autoApprove.useMcpDesc"),
 		icon: "codicon-server",
 	},
 ]
 
 export const NOTIFICATIONS_SETTING: ActionMetadata = {
 	id: "enableNotifications",
-	label: "Enable notifications",
-	shortName: "Notifications",
-	description: "Receive system notifications when Cline requires approval to proceed or when a task is completed.",
+	label: t("generalSettings.enableNotifications"),
+	shortName: t("autoApprove.notifications"),
+	description: t("autoApprove.notificationsDesc"),
 	icon: "codicon-bell",
 }

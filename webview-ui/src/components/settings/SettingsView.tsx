@@ -12,6 +12,7 @@ import {
 	Wrench,
 } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useEvent } from "react-use"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
@@ -40,68 +41,68 @@ interface SettingsTab {
 	hidden?: boolean
 }
 
-export const SETTINGS_TABS: SettingsTab[] = [
+// Static tab definitions with icons only
+const SETTINGS_TAB_CONFIG: Array<{
+	id: string
+	icon: LucideIcon
+	hidden?: boolean
+}> = [
 	{
 		id: "api-config",
-		name: "API Configuration",
-		tooltipText: "API Configuration",
-		headerText: "API Configuration",
 		icon: SlidersHorizontal,
 	},
 	{
 		id: "features",
-		name: "Features",
-		tooltipText: "Feature Settings",
-		headerText: "Feature Settings",
 		icon: CheckCheck,
 	},
 	{
 		id: "browser",
-		name: "Browser",
-		tooltipText: "Browser Settings",
-		headerText: "Browser Settings",
 		icon: SquareMousePointer,
 	},
 	{
 		id: "terminal",
-		name: "Terminal",
-		tooltipText: "Terminal Settings",
-		headerText: "Terminal Settings",
 		icon: SquareTerminal,
 	},
 	{
 		id: "general",
-		name: "General",
-		tooltipText: "General Settings",
-		headerText: "General Settings",
 		icon: Wrench,
 	},
 	{
 		id: "about",
-		name: "About",
-		tooltipText: "About Cline",
-		headerText: "About",
 		icon: Info,
 	},
 	// Only show in dev mode
 	{
 		id: "debug",
-		name: "Debug",
-		tooltipText: "Debug Tools",
-		headerText: "Debug",
 		icon: FlaskConical,
 		hidden: !IS_DEV,
 	},
 ]
+
+// Helper to get translated tabs
+const useSettingsTabs = (): SettingsTab[] => {
+	const { t } = useTranslation()
+	
+	return useMemo(() => SETTINGS_TAB_CONFIG.map(config => ({
+		id: config.id,
+		name: t(`settings.${config.id === "api-config" ? "apiConfiguration" : config.id}`),
+		tooltipText: t(`settings.${config.id === "api-config" ? "apiConfiguration" : config.id === "features" ? "featureSettings" : config.id === "browser" ? "browserSettings" : config.id === "terminal" ? "terminalSettings" : config.id === "general" ? "generalSettings" : config.id === "about" ? "aboutCline" : "debugTools"}`),
+		headerText: t(`settings.${config.id === "api-config" ? "apiConfiguration" : config.id === "features" ? "featureSettings" : config.id === "browser" ? "browserSettings" : config.id === "terminal" ? "terminalSettings" : config.id === "general" ? "generalSettings" : config.id}`),
+		icon: config.icon,
+		hidden: config.hidden,
+	})), [t])
+}
+
+export const SETTINGS_TABS = SETTINGS_TAB_CONFIG
 
 type SettingsViewProps = {
 	onDone: () => void
 	targetSection?: string
 }
 
-// Helper to render section header - moved outside component for better performance
-const renderSectionHeader = (tabId: string) => {
-	const tab = SETTINGS_TABS.find((t) => t.id === tabId)
+// Helper component for section header
+const SectionHeaderComponent = ({ tabId, tabs }: { tabId: string; tabs: SettingsTab[] }) => {
+	const tab = tabs.find((t) => t.id === tabId)
 	if (!tab) {
 		return null
 	}
@@ -117,6 +118,9 @@ const renderSectionHeader = (tabId: string) => {
 }
 
 const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
+	const { t } = useTranslation()
+	const settingsTabs = useSettingsTabs()
+	
 	// Memoize to avoid recreation
 	const TAB_CONTENT_MAP = useMemo(
 		() => ({
@@ -133,7 +137,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 
 	const { version, environment } = useExtensionState()
 
-	const [activeTab, setActiveTab] = useState<string>(targetSection || SETTINGS_TABS[0].id)
+	const [activeTab, setActiveTab] = useState<string>(targetSection || SETTINGS_TAB_CONFIG[0].id)
 
 	// Optimized message handler with early returns
 	const handleMessage = useCallback((event: MessageEvent) => {
@@ -153,7 +157,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		}
 
 		// Check if valid tab ID
-		if (SETTINGS_TABS.some((tab) => tab.id === tabId)) {
+		if (SETTINGS_TAB_CONFIG.some((tab) => tab.id === tabId)) {
 			setActiveTab(tabId)
 			return
 		}
@@ -195,7 +199,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 
 	// Memoized tab item renderer
 	const renderTabItem = useCallback(
-		(tab: (typeof SETTINGS_TABS)[0]) => {
+		(tab: SettingsTab) => {
 			return (
 				<TabTrigger className="flex justify-baseline" data-testid={`tab-${tab.id}`} key={tab.id} value={tab.id}>
 					<Tooltip key={tab.id}>
@@ -219,6 +223,11 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		},
 		[activeTab],
 	)
+	
+	// Render section header with current tabs
+	const renderSectionHeader = useCallback((tabId: string) => {
+		return <SectionHeaderComponent tabId={tabId} tabs={settingsTabs} />
+	}, [settingsTabs])
 
 	// Memoized active content component
 	const ActiveContent = useMemo(() => {
@@ -245,11 +254,11 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 			<TabHeader className="flex justify-between items-center gap-2">
 				<div className="flex items-center gap-1">
 					<h3 className="text-md m-0" style={{ color: titleColor }}>
-						Settings
+						{t("settings.title")}
 					</h3>
 				</div>
 				<div className="flex gap-2">
-					<VSCodeButton onClick={onDone}>Done</VSCodeButton>
+					<VSCodeButton onClick={onDone}>{t("settings.done")}</VSCodeButton>
 				</div>
 			</TabHeader>
 
@@ -258,7 +267,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 					className="shrink-0 flex flex-col overflow-y-auto border-r border-sidebar-background"
 					onValueChange={setActiveTab}
 					value={activeTab}>
-					{SETTINGS_TABS.filter((tab) => !tab.hidden).map(renderTabItem)}
+					{settingsTabs.filter((tab) => !tab.hidden).map(renderTabItem)}
 				</TabList>
 
 				<TabContent className="flex-1 overflow-auto">{ActiveContent}</TabContent>

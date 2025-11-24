@@ -363,6 +363,10 @@ message UpdateSettingsRequest {
   optional string cline_env = 31;
   optional bool native_tool_call_enabled = 32;
   optional OnboardingModelGroup onboarding_models = 33;
+  optional bool task_documentation_enabled = 34;
+  optional bool task_progress_tracking_enabled = 35;
+  optional bool token_saving_enabled = 36;
+  optional string compression_level = 37;
 }
 
 message UpdateTerminalConnectionTimeoutRequest {

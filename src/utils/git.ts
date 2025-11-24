@@ -1,5 +1,6 @@
 import { exec } from "child_process"
 import { promisify } from "util"
+import { t } from "../shared/i18n"
 
 const execAsync = promisify(exec)
 const GIT_OUTPUT_LINE_LIMIT = 500
@@ -43,13 +44,13 @@ export async function searchCommits(query: string, cwd: string): Promise<GitComm
 	try {
 		const isInstalled = await checkGitInstalled()
 		if (!isInstalled) {
-			console.error("Git is not installed")
+			console.error(t("errors.gitNotInstalled"))
 			return []
 		}
 
 		const isRepo = await checkGitRepo(cwd)
 		if (!isRepo) {
-			console.error("Not a git repository")
+			console.error(t("errors.notGitRepository"))
 			return []
 		}
 
@@ -98,7 +99,7 @@ export async function searchCommits(query: string, cwd: string): Promise<GitComm
 
 		return commits
 	} catch (error) {
-		console.error("Error searching commits:", error)
+		console.error(t("git.searchingCommits"), error)
 		return []
 	}
 }

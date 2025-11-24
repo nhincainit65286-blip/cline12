@@ -33,6 +33,7 @@ import { LogoutReason } from "@/services/auth/types"
 import { featureFlagsService } from "@/services/feature-flags"
 import { getDistinctId } from "@/services/logging/distinctId"
 import { telemetryService } from "@/services/telemetry"
+import { t } from "@/shared/i18n"
 import { getAxiosSettings } from "@/shared/net"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import type { AuthState } from "@/shared/proto/index.cline"
@@ -132,13 +133,13 @@ export class Controller {
 					await this.postStateToWebview()
 					HostProvider.window.showMessage({
 						type: ShowMessageType.WARNING,
-						message: "Saving settings to storage failed.",
+						message: t("settings.saveFailed"),
 					})
 				} catch (recoveryError) {
 					console.error("[Controller] Cache recovery failed:", recoveryError)
 					HostProvider.window.showMessage({
 						type: ShowMessageType.ERROR,
-						message: "Failed to save settings. Please restart the extension.",
+						message: t("settings.saveFailedRestart"),
 					})
 				}
 			},
@@ -213,12 +214,12 @@ export class Controller {
 			await this.postStateToWebview()
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: "Successfully logged out of Cline",
+				message: t("auth.logoutSuccess"),
 			})
 		} catch (_error) {
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: "Logout failed",
+				message: t("auth.logoutFailed"),
 			})
 		}
 	}
@@ -230,12 +231,12 @@ export class Controller {
 			await this.postStateToWebview()
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: "Successfully logged out of OCA",
+				message: t("auth.ocaLogoutSuccess"),
 			})
 		} catch (_error) {
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: "OCA Logout failed",
+				message: t("auth.ocaLogoutFailed"),
 			})
 		}
 	}
@@ -583,7 +584,7 @@ export class Controller {
 			console.error("Failed to handle auth callback:", error)
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: "Failed to log in to Cline",
+				message: t("auth.loginFailed"),
 			})
 			// Even on login failure, we preserve any existing tokens
 			// Only clear tokens on explicit logout
@@ -634,7 +635,7 @@ export class Controller {
 			console.error("Failed to handle auth callback:", error)
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: "Failed to log in to OCA",
+				message: t("auth.ocaLoginFailed"),
 			})
 			// Even on login failure, we preserve any existing tokens
 			// Only clear tokens on explicit logout
@@ -647,13 +648,13 @@ export class Controller {
 			await this.postStateToWebview()
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: `Successfully authenticated MCP server`,
+				message: t("auth.mcpAuthSuccess"),
 			})
 		} catch (error) {
 			console.error("Failed to complete MCP OAuth:", error)
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: `Failed to authenticate MCP server`,
+				message: t("auth.mcpAuthFailed"),
 			})
 		}
 	}
@@ -889,6 +890,15 @@ export class Controller {
 		const lastDismissedModelBannerVersion = this.stateManager.getGlobalStateKey("lastDismissedModelBannerVersion") || 0
 		const lastDismissedCliBannerVersion = this.stateManager.getGlobalStateKey("lastDismissedCliBannerVersion") || 0
 		const subagentsEnabled = this.stateManager.getGlobalSettingsKey("subagentsEnabled")
+		const taskDocumentationEnabled = this.stateManager.getGlobalSettingsKey("taskDocumentationEnabled")
+		const taskProgressTrackingEnabled = this.stateManager.getGlobalSettingsKey("taskProgressTrackingEnabled")
+		const tokenSavingEnabled = this.stateManager.getGlobalSettingsKey("tokenSavingEnabled")
+		const compressionLevel = this.stateManager.getGlobalSettingsKey("compressionLevel")
+
+		// Debug: Log token saving state
+		console.log("=== CONTROLLER GET STATE ===")
+		console.log("tokenSavingEnabled:", tokenSavingEnabled)
+		console.log("compressionLevel:", compressionLevel)
 
 		const localClineRulesToggles = this.stateManager.getWorkspaceStateKey("localClineRulesToggles")
 		const localWindsurfRulesToggles = this.stateManager.getWorkspaceStateKey("localWindsurfRulesToggles")
@@ -993,6 +1003,10 @@ export class Controller {
 				user: this.stateManager.getGlobalStateKey("nativeToolCallEnabled"),
 				featureFlag: featureFlagsService.getNativeToolCallEnabled(),
 			},
+			taskDocumentationEnabled,
+			taskProgressTrackingEnabled,
+			tokenSavingEnabled,
+			compressionLevel,
 		}
 	}
 

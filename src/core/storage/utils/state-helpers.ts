@@ -316,6 +316,12 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 		const openTelemetryLogMaxQueueSize =
 			context.globalState.get<GlobalStateAndSettings["openTelemetryLogMaxQueueSize"]>("openTelemetryLogMaxQueueSize")
 		const subagentsEnabled = context.globalState.get<GlobalStateAndSettings["subagentsEnabled"]>("subagentsEnabled")
+		const taskDocumentationEnabled =
+			context.globalState.get<GlobalStateAndSettings["taskDocumentationEnabled"]>("taskDocumentationEnabled")
+		const taskProgressTrackingEnabled =
+			context.globalState.get<GlobalStateAndSettings["taskProgressTrackingEnabled"]>("taskProgressTrackingEnabled")
+		const tokenSavingEnabled = context.globalState.get<GlobalStateAndSettings["tokenSavingEnabled"]>("tokenSavingEnabled")
+		const compressionLevel = context.globalState.get<GlobalStateAndSettings["compressionLevel"]>("compressionLevel")
 
 		// Get mode-related configurations
 		const mode = context.globalState.get<GlobalStateAndSettings["mode"]>("mode")
@@ -663,6 +669,10 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 			// Hooks require explicit user opt-in and are only supported on macOS/Linux
 			hooksEnabled: getHooksEnabledSafe(hooksEnabled),
 			subagentsEnabled: subagentsEnabled ?? false,
+			taskDocumentationEnabled: taskDocumentationEnabled ?? false,
+			taskProgressTrackingEnabled: taskProgressTrackingEnabled ?? true,
+			tokenSavingEnabled: tokenSavingEnabled ?? false,
+			compressionLevel: compressionLevel ?? "medium",
 			lastDismissedInfoBannerVersion: lastDismissedInfoBannerVersion ?? 0,
 			lastDismissedModelBannerVersion: lastDismissedModelBannerVersion ?? 0,
 			lastDismissedCliBannerVersion: lastDismissedCliBannerVersion ?? 0,

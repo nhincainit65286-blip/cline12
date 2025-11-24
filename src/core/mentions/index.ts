@@ -13,6 +13,7 @@ import { isBinaryFile } from "isbinaryfile"
 import * as path from "path"
 import { HostProvider } from "@/hosts/host-provider"
 import { ShowMessageType } from "@/shared/proto/host/window"
+import { t } from "@/shared/i18n"
 import { DiagnosticSeverity } from "@/shared/proto/index.cline"
 import { isDirectory } from "@/utils/fs"
 import { getCwd } from "@/utils/path"
@@ -100,7 +101,7 @@ export async function parseMentions(
 			launchBrowserError = error
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: `Error fetching content for ${urlMention}: ${error.message}`,
+				message: t("mentions.urlFetchError", { url: urlMention, error: error.message }),
 			})
 		}
 	}
@@ -132,7 +133,7 @@ export async function parseMentions(
 				} catch (error) {
 					HostProvider.window.showMessage({
 						type: ShowMessageType.ERROR,
-						message: `Error fetching content for ${mention}: ${error.message}`,
+						message: t("mentions.urlFetchError", { url: mention, error: error.message }),
 					})
 					result = `Error fetching content: ${error.message}`
 					// Track failed URL mention

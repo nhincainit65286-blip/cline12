@@ -2,6 +2,7 @@ import { getSavedClineMessages, getTaskMetadata, readTaskHistoryFromState, write
 import { HostProvider } from "@hosts/host-provider"
 import { ClineMessage } from "@shared/ExtensionMessage"
 import { HistoryItem } from "@shared/HistoryItem"
+import { t } from "@shared/i18n"
 import { ShowMessageType } from "@shared/proto/host/window"
 import { fileExistsAtPath } from "@utils/fs"
 import * as path from "path"
@@ -22,28 +23,32 @@ export async function reconstructTaskHistory(): Promise<void> {
 		// Show confirmation dialog using HostProvider
 		const proceed = await HostProvider.window.showMessage({
 			type: ShowMessageType.WARNING,
-			message:
-				"This will rebuild your task history from existing task data. This operation will backup your current task history and attempt to reconstruct it from task folders. Continue?",
+			message: t("taskHistory.reconstructConfirm"),
 			options: {
-				items: ["Yes, Reconstruct", "Cancel"],
+				items: [t("general.yesReconstruct"), t("general.cancel")],
 			},
 		})
 
-		if (proceed?.selectedOption !== "Yes, Reconstruct") {
+		if (proceed?.selectedOption !== t("general.yesReconstruct")) {
 			return
 		}
 
 		// Show initial progress message
 		HostProvider.window.showMessage({
 			type: ShowMessageType.INFORMATION,
-			message: "Reconstructing task history...",
+			message: t("taskHistory.reconstructing"),
 		})
 
 		const result = await performTaskHistoryReconstruction()
 
 		// Show results
 		if (result.errors.length > 0) {
-			const errorMessage = `Reconstruction completed with warnings:\n- Reconstructed: ${result.reconstructedTasks} tasks\n- Skipped: ${result.skippedTasks} tasks\n- Errors: ${result.errors.length}\n\nFirst few errors:\n${result.errors.slice(0, 3).join("\n")}`
+			const errorMessage = t("taskHistory.reconstructWarning", {
+				reconstructed: result.reconstructedTasks.toString(),
+				skipped: result.skippedTasks.toString(),
+				errorCount: result.errors.length.toString(),
+				errors: result.errors.slice(0, 3).join("\n"),
+			})
 
 			HostProvider.window.showMessage({
 				type: ShowMessageType.WARNING,
@@ -52,14 +57,14 @@ export async function reconstructTaskHistory(): Promise<void> {
 		} else {
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: `Task history successfully reconstructed! Found and restored ${result.reconstructedTasks} tasks.`,
+				message: t("taskHistory.reconstructSuccess", { count: result.reconstructedTasks.toString() }),
 			})
 		}
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
 		HostProvider.window.showMessage({
 			type: ShowMessageType.ERROR,
-			message: `Failed to reconstruct task history: ${errorMessage}`,
+			message: t("taskHistory.reconstructFailed", { error: errorMessage }),
 		})
 	}
 }

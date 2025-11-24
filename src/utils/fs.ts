@@ -2,6 +2,7 @@ import { workspaceResolver } from "@core/workspace"
 import fs from "fs/promises"
 import * as path from "path"
 import { HostProvider } from "@/hosts/host-provider"
+import { t } from "@/shared/i18n"
 
 const IS_WINDOWS = /^win/.test(process.platform)
 
@@ -149,7 +150,7 @@ export const readDirectory = async (directoryPath: string, excludedPaths: string
 
 		return filePaths
 	} catch {
-		throw new Error(`Error reading directory at ${directoryPath}`)
+		throw new Error(t("errors.errorReadingDirectory", { path: directoryPath }))
 	}
 }
 
@@ -158,7 +159,7 @@ export async function getBinaryLocation(name: string): Promise<string> {
 	const location = await HostProvider.get().getBinaryLocation(binName)
 
 	if (!(await fileExistsAtPath(location))) {
-		throw new Error(`Could not find binary ${name} at: ${location}`)
+		throw new Error(t("errors.binaryNotFound", { name, location }))
 	}
 	return location
 }

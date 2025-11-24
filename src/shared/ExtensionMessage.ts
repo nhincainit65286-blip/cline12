@@ -104,6 +104,12 @@ export interface ExtensionState {
 	remoteConfigSettings?: Partial<RemoteConfigFields>
 	subagentsEnabled?: boolean
 	nativeToolCallSetting?: ClineFeatureSetting
+	// Task Documentation & Tracking
+	taskDocumentationEnabled?: boolean
+	taskProgressTrackingEnabled?: boolean
+	// Token Saving
+	tokenSavingEnabled?: boolean
+	compressionLevel?: "none" | "light" | "medium" | "aggressive"
 }
 
 export interface ClineMessage {

@@ -4,6 +4,7 @@ import axios from "axios"
 import { readFile } from "fs/promises"
 import * as vscode from "vscode"
 import { HostProvider } from "@/hosts/host-provider"
+import { t } from "@/shared/i18n"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import { getNonce } from "./getNonce"
 
@@ -171,8 +172,7 @@ export abstract class WebviewProvider {
 			if (process.env.IS_DEV) {
 				HostProvider.window.showMessage({
 					type: ShowMessageType.ERROR,
-					message:
-						"Cline: Local webview dev server is not running, HMR will not work. Please run 'npm run dev:webview' before launching the extension to enable HMR. Using bundled assets.",
+					message: t("webview.devServerNotRunning"),
 				})
 			}
 

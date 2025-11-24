@@ -1,6 +1,7 @@
 import { HostProvider } from "@/hosts/host-provider"
 import CheckpointTracker from "@/integrations/checkpoints/CheckpointTracker"
 import { findLast } from "@/shared/array"
+import { t } from "@/shared/i18n"
 import { ShowMessageType } from "@/shared/proto/index.host"
 import { MessageStateHandler } from "./message-state"
 
@@ -73,7 +74,7 @@ async function getChangedFiles(
 		if (!changedFiles.length) {
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: "No changes found",
+				message: t("commits.noChanges"),
 			})
 		}
 		return changedFiles
@@ -81,7 +82,7 @@ async function getChangedFiles(
 		const errorMessage = error instanceof Error ? error.message : "Unknown error"
 		HostProvider.window.showMessage({
 			type: ShowMessageType.ERROR,
-			message: "Failed to retrieve diff set: " + errorMessage,
+			message: t("errors.operationFailed", { attempts: "1", message: errorMessage }),
 		})
 		return []
 	}
@@ -111,7 +112,7 @@ async function getChangesSinceLastTaskCompletion(
 	if (!previousCheckpointHash) {
 		HostProvider.window.showMessage({
 			type: ShowMessageType.ERROR,
-			message: "Unexpected error: No checkpoint hash found",
+			message: t("errors.operationFailed", { attempts: "1", message: "No checkpoint hash found" }),
 		})
 		return []
 	}

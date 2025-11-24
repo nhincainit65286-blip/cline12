@@ -5,6 +5,7 @@ import { HostProvider } from "@/hosts/host-provider"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import { fileExistsAtPath } from "../../../utils/fs"
 import { Controller } from ".."
+import { t } from "@/shared/i18n"
 
 /**
  * Deletes tasks with the specified IDs
@@ -19,18 +20,15 @@ export async function deleteTasksWithIds(controller: Controller, request: String
 	}
 
 	const taskCount = request.value.length
-	const message =
-		taskCount === 1
-			? "Are you sure you want to delete this task? This action cannot be undone."
-			: `Are you sure you want to delete these ${taskCount} tasks? This action cannot be undone.`
+	const message = t("prompts.confirmDelete")
 
 	const userChoice = await HostProvider.window.showMessage({
 		type: ShowMessageType.WARNING,
 		message,
-		options: { modal: true, items: ["Delete"] },
+		options: { modal: true, items: [t("general.delete")] },
 	})
 
-	if (userChoice.selectedOption !== "Delete") {
+	if (userChoice.selectedOption !== t("general.delete")) {
 		return Empty.create()
 	}
 

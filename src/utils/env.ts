@@ -1,6 +1,7 @@
 import { EmptyRequest, StringRequest } from "@shared/proto/cline/common"
 import open from "open"
 import { HostProvider } from "@/hosts/host-provider"
+import { t } from "@/shared/i18n"
 
 /**
  * Writes text to the system clipboard
@@ -13,7 +14,7 @@ export async function writeTextToClipboard(text: string): Promise<void> {
 		await HostProvider.env.clipboardWriteText(StringRequest.create({ value: text }))
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to write to clipboard: ${errorMessage}`)
+		throw new Error(t("errors.failedToWriteClipboard", { error: errorMessage }))
 	}
 }
 
@@ -28,7 +29,7 @@ export async function readTextFromClipboard(): Promise<string> {
 		return response.value
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to read from clipboard: ${errorMessage}`)
+		throw new Error(t("errors.failedToReadClipboard", { error: errorMessage }))
 	}
 }
 

@@ -7,21 +7,21 @@ import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js"
 import { getDefaultEnvironment, StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js"
 import {
-	CallToolResultSchema,
-	ListResourcesResultSchema,
-	ListResourceTemplatesResultSchema,
-	ListToolsResultSchema,
-	ReadResourceResultSchema,
+    CallToolResultSchema,
+    ListResourcesResultSchema,
+    ListResourceTemplatesResultSchema,
+    ListToolsResultSchema,
+    ReadResourceResultSchema,
 } from "@modelcontextprotocol/sdk/types.js"
 import {
-	DEFAULT_MCP_TIMEOUT_SECONDS,
-	McpResource,
-	McpResourceResponse,
-	McpResourceTemplate,
-	McpServer,
-	McpTool,
-	McpToolCallResponse,
-	MIN_MCP_TIMEOUT_SECONDS,
+    DEFAULT_MCP_TIMEOUT_SECONDS,
+    McpResource,
+    McpResourceResponse,
+    McpResourceTemplate,
+    McpServer,
+    McpTool,
+    McpToolCallResponse,
+    MIN_MCP_TIMEOUT_SECONDS,
 } from "@shared/mcp"
 import { convertMcpServersToProtoMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion"
 import { fileExistsAtPath } from "@utils/fs"
@@ -34,6 +34,7 @@ import * as path from "path"
 import ReconnectingEventSource from "reconnecting-eventsource"
 import { z } from "zod"
 import { HostProvider } from "@/hosts/host-provider"
+import { t } from "@/shared/i18n"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import { getServerAuthHash } from "@/utils/mcpAuth"
 import { TelemetryService } from "../telemetry/TelemetryService"
@@ -146,7 +147,7 @@ export class McpHub {
 			} catch (_error) {
 				HostProvider.window.showMessage({
 					type: ShowMessageType.ERROR,
-					message: "Invalid MCP settings format. Please ensure your settings follow the correct JSON format.",
+					message: t("mcp.invalidSettingsFormat"),
 				})
 				return undefined
 			}
@@ -156,7 +157,7 @@ export class McpHub {
 			if (!result.success) {
 				HostProvider.window.showMessage({
 					type: ShowMessageType.ERROR,
-					message: "Invalid MCP settings schema.",
+					message: t("mcp.invalidSettingsSchema"),
 				})
 				return undefined
 			}
@@ -497,7 +498,11 @@ export class McpHub {
 					// Show in VS Code for visibility
 					HostProvider.window.showMessage({
 						type: ShowMessageType.INFORMATION,
-						message: `MCP ${name}: ${notification.method || "unknown"} - ${JSON.stringify(notification.params || {})}`,
+						message: t("mcp.notification", {
+						name,
+						method: notification.method || "unknown",
+						params: JSON.stringify(notification.params || {}),
+					}),
 					})
 				}
 				//console.log(`[MCP Debug] Successfully set fallback notification handler for ${name}`)
@@ -794,7 +799,7 @@ export class McpHub {
 		if (config) {
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: `Restarting ${serverName} MCP server...`,
+				message: t("mcp.restarting", { server: serverName }),
 			})
 			connection.server.status = "connecting"
 			connection.server.error = ""
@@ -806,13 +811,13 @@ export class McpHub {
 				await this.connectToServer(serverName, JSON.parse(config), "internal")
 				HostProvider.window.showMessage({
 					type: ShowMessageType.INFORMATION,
-					message: `${serverName} MCP server connected`,
+					message: t("mcp.connected", { server: serverName }),
 				})
 			} catch (error) {
 				console.error(`Failed to restart connection for ${serverName}:`, error)
 				HostProvider.window.showMessage({
 					type: ShowMessageType.ERROR,
-					message: `Failed to connect to ${serverName} MCP server`,
+					message: t("mcp.connectFailed", { server: serverName }),
 				})
 			}
 		}
@@ -901,7 +906,7 @@ export class McpHub {
 			}
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: `Failed to update server state: ${error instanceof Error ? error.message : String(error)}`,
+				message: t("mcp.updateStateFailed", { error: error instanceof Error ? error.message : String(error) }),
 			})
 			throw error
 		}
@@ -1096,7 +1101,7 @@ export class McpHub {
 			console.error("Failed to update autoApprove settings:", error)
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: "Failed to update autoApprove settings",
+				message: t("mcp.updateAutoApproveFailed"),
 			})
 			throw error // Re-throw to ensure the error is properly handled
 		}
@@ -1225,7 +1230,7 @@ export class McpHub {
 			}
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: `Failed to update server timeout: ${error instanceof Error ? error.message : String(error)}`,
+				message: t("mcp.updateTimeoutFailed", { error: error instanceof Error ? error.message : String(error) }),
 			})
 			throw error
 		}

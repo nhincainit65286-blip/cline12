@@ -6,6 +6,7 @@ import type { ClineApiReqInfo, ClineMessage } from "@shared/ExtensionMessage"
 import { getApiMetrics } from "@shared/getApiMetrics"
 import { BooleanRequest, StringRequest } from "@shared/proto/cline/common"
 import { useCallback, useEffect, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { useMount } from "react-use"
 import { normalizeApiConfiguration } from "@/components/settings/utils/providerUtils"
 import { useExtensionState } from "@/context/ExtensionStateContext"
@@ -15,19 +16,19 @@ import { Navbar } from "../menu/Navbar"
 import AutoApproveBar from "./auto-approve-menu/AutoApproveBar"
 // Import utilities and hooks from the new structure
 import {
-	ActionButtons,
-	CHAT_CONSTANTS,
-	ChatLayout,
-	convertHtmlToMarkdown,
-	filterVisibleMessages,
-	groupMessages,
-	InputSection,
-	MessagesArea,
-	TaskSection,
-	useChatState,
-	useMessageHandlers,
-	useScrollBehavior,
-	WelcomeSection,
+    ActionButtons,
+    CHAT_CONSTANTS,
+    ChatLayout,
+    convertHtmlToMarkdown,
+    filterVisibleMessages,
+    groupMessages,
+    InputSection,
+    MessagesArea,
+    TaskSection,
+    useChatState,
+    useMessageHandlers,
+    useScrollBehavior,
+    WelcomeSection,
 } from "./chat-view"
 
 interface ChatViewProps {
@@ -42,6 +43,7 @@ const MAX_IMAGES_AND_FILES_PER_MESSAGE = CHAT_CONSTANTS.MAX_IMAGES_AND_FILES_PER
 const QUICK_WINS_HISTORY_THRESHOLD = 3
 
 const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryView }: ChatViewProps) => {
+	const { t } = useTranslation()
 	const showNavbar = useShowNavbar()
 	const {
 		version,
@@ -331,9 +333,9 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	const scrollBehavior = useScrollBehavior(messages, visibleMessages, groupedMessages, expandedRows, setExpandedRows)
 
 	const placeholderText = useMemo(() => {
-		const text = task ? "Type a message..." : "Type your task here..."
+		const text = task ? t("chatView.placeholder.withTask") : t("chatView.placeholder.noTask")
 		return text
-	}, [task])
+	}, [task, t])
 
 	return (
 		<ChatLayout isHidden={isHidden}>

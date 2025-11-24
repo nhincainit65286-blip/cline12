@@ -1,19 +1,52 @@
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
-import React from "react"
+import React, { useEffect } from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"
+import { useTranslation } from "@/hooks/useTranslation"
 import { updateSetting } from "./utils/settingsHandlers"
+
+// Map language display names to i18n codes
+const languageCodeMap: Record<string, string> = {
+	English: "en",
+	"Vietnamese - Tiếng Việt": "vi",
+	// Add more mappings as needed
+}
 
 const PreferredLanguageSetting: React.FC = () => {
 	const { preferredLanguage } = useExtensionState()
+	const { t, changeLanguage, i18n } = useTranslation()
+
+	// Sync i18n language with preferred language setting
+	useEffect(() => {
+		if (preferredLanguage) {
+			// If user has set a preference, use it
+			const langCode = languageCodeMap[preferredLanguage] || "vi"
+			changeLanguage(langCode)
+		} else {
+			// If no preference, sync setting with current i18n language (default Vietnamese)
+			const currentLang = i18n.language
+			const displayName = Object.keys(languageCodeMap).find(
+				key => languageCodeMap[key] === currentLang
+			) || "Vietnamese - Tiếng Việt"
+			
+			// Set default to Vietnamese
+			if (displayName !== "English") {
+				updateSetting("preferredLanguage", displayName)
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [preferredLanguage])
 
 	const handleLanguageChange = (newLanguage: string) => {
 		updateSetting("preferredLanguage", newLanguage)
+		// Also update i18n immediately
+		const langCode = languageCodeMap[newLanguage] || "en"
+		changeLanguage(langCode)
 	}
 
 	return (
 		<div style={{}}>
 			<label className="block mb-1 text-base font-medium" htmlFor="preferred-language-dropdown">
-				Preferred Language
+				{t("settings.preferredLanguage")}
 			</label>
 			<VSCodeDropdown
 				currentValue={preferredLanguage || "English"}
@@ -40,8 +73,13 @@ const PreferredLanguageSetting: React.FC = () => {
 				<VSCodeOption value="Spanish - Español">Spanish - Español</VSCodeOption>
 				<VSCodeOption value="Traditional Chinese - 繁體中文">Traditional Chinese - 繁體中文</VSCodeOption>
 				<VSCodeOption value="Turkish - Türkçe">Turkish - Türkçe</VSCodeOption>
+				<VSCodeOption value="Vietnamese - Tiếng Việt">Vietnamese - Tiếng Việt</VSCodeOption>
 			</VSCodeDropdown>
-			<p className="text-sm text-description mt-1">The language that Cline should use for communication.</p>
+			<p className="text-sm text-description mt-1">
+				{preferredLanguage === "Vietnamese - Tiếng Việt"
+					? "Ngôn ngữ mà Cline sử dụng để giao tiếp."
+					: "The language that Cline should use for communication."}
+			</p>
 		</div>
 	)
 }

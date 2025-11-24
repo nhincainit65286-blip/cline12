@@ -5,6 +5,7 @@ import { StateManager } from "@/core/storage/StateManager"
 import { HostProvider } from "@/hosts/host-provider"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import { getGitDiff } from "@/utils/git"
+import { t } from "@/shared/i18n"
 
 /**
  * Git commit message generator module
@@ -28,12 +29,12 @@ export async function generateCommitMsg(stateManager: StateManager, scm?: vscode
 	try {
 		const gitExtension = vscode.extensions.getExtension("vscode.git")?.exports
 		if (!gitExtension) {
-			throw new Error("Git extension not found")
+			throw new Error(t("commit.gitNotFound"))
 		}
 
 		const git = gitExtension.getAPI(1)
 		if (git.repositories.length === 0) {
-			throw new Error("No Git repositories available")
+			throw new Error(t("commit.noRepositories"))
 		}
 
 		// If scm is provided, then the user specified one repository by clicking the "Source Control" menu button
@@ -41,7 +42,7 @@ export async function generateCommitMsg(stateManager: StateManager, scm?: vscode
 			const repository = git.getRepository(scm.rootUri)
 
 			if (!repository) {
-				throw new Error("Repository not found for provided SCM")
+				throw new Error(t("commit.repositoryNotFound"))
 			}
 
 			await generateCommitMsgForRepository(stateManager, repository)
@@ -53,7 +54,7 @@ export async function generateCommitMsg(stateManager: StateManager, scm?: vscode
 		const errorMessage = error instanceof Error ? error.message : String(error)
 		HostProvider.window.showMessage({
 			type: ShowMessageType.ERROR,
-			message: `[Commit Generation Failed] ${errorMessage}`,
+			message: t("commit.generationFailed", { error: errorMessage }),
 		})
 	}
 }
@@ -64,7 +65,7 @@ async function orchestrateWorkspaceCommitMsgGeneration(stateManager: StateManage
 	if (reposWithChanges.length === 0) {
 		HostProvider.window.showMessage({
 			type: ShowMessageType.INFORMATION,
-			message: "No changes found in any workspace repositories",
+			message: t("commit.noChangesInWorkspace"),
 		})
 		return
 	}
@@ -124,13 +125,13 @@ async function promptRepoSelection(repos: any[]) {
 	}))
 
 	repoItems.unshift({
-		label: "$(git-commit) Generate for all repositories with changes",
-		description: `Generate commit messages for ${repos.length} repositories`,
+		label: `$(git-commit) ${t("commit.generateForAll")}`,
+		description: t("commit.generateForAllDescription", { count: repos.length.toString() }),
 		repo: null as any,
 	})
 
 	return await vscode.window.showQuickPick(repoItems, {
-		placeHolder: "Select repository for commit message generation",
+		placeHolder: t("commit.selectRepository"),
 	})
 }
 
@@ -140,13 +141,14 @@ async function generateCommitMsgForRepository(stateManager: StateManager, reposi
 	const gitDiff = await getGitDiff(repoPath)
 
 	if (!gitDiff) {
-		throw new Error(`No changes in repository ${repoPath.split(path.sep).pop() || "repository"} for commit message`)
+		const repoName = repoPath.split(path.sep).pop() || "repository"
+		throw new Error(t("commit.noChanges", { repo: repoName }))
 	}
 
 	await vscode.window.withProgress(
 		{
 			location: vscode.ProgressLocation.SourceControl,
-			title: `Generating commit message for ${repoPath.split(path.sep).pop() || "repository"}...`,
+			title: t("commit.generating", { repo: repoPath.split(path.sep).pop() || "repository" }),
 			cancellable: true,
 		},
 		() => performCommitMsgGeneration(stateManager, gitDiff, inputBox),
@@ -195,13 +197,13 @@ async function performCommitMsgGeneration(stateManager: StateManager, gitDiff: s
 		}
 
 		if (!inputBox.value) {
-			throw new Error("empty API response")
+			throw new Error(t("commit.emptyResponse"))
 		}
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
 		HostProvider.window.showMessage({
 			type: ShowMessageType.ERROR,
-			message: `Failed to generate commit message: ${errorMessage}`,
+			message: t("commit.generationFailed", { error: errorMessage }),
 		})
 	} finally {
 		vscode.commands.executeCommand("setContext", "cline.isGeneratingCommit", false)

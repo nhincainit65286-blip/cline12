@@ -1,0 +1,44 @@
+{
+	"displayName": "Cline",
+	"description": "Trợ lý lập trình tự động ngay trong IDE của bạn, có khả năng tạo/chỉnh sửa file, chạy lệnh, sử dụng trình duyệt và nhiều hơn nữa với sự cho phép của bạn ở mọi bước.",
+	
+	"walkthrough.title": "Gặp gỡ Cline, đối tác lập trình mới của bạn",
+	"walkthrough.description": "Cline lập trình như một developer vì nó suy nghĩ như một developer. Đây là 5 cách để tận dụng nó:",
+	
+	"walkthrough.step1.title": "Bắt đầu với Mục tiêu, Không chỉ là Prompt",
+	"walkthrough.step1.description": "Nói với Cline những gì bạn muốn đạt được. Nó lập kế hoạch, đặt câu hỏi, rồi mới lập trình, như một đối tác thực sự.",
+	
+	"walkthrough.step2.title": "Để Cline Học Codebase của Bạn",
+	"walkthrough.step2.description": "Chỉ Cline đến dự án của bạn. Nó xây dựng hiểu biết để thực hiện các thay đổi thông minh, phù hợp ngữ cảnh.",
+	
+	"walkthrough.step3.title": "Luôn Sử dụng Các Mô hình AI Tốt nhất",
+	"walkthrough.step3.description": "Cline trao quyền cho bạn với AI Tiên tiến nhất, kết nối với các mô hình hàng đầu (Anthropic, Gemini, OpenAI & nhiều hơn).",
+	
+	"walkthrough.step4.title": "Mở rộng với Công cụ Mạnh mẽ (MCP)",
+	"walkthrough.step4.description": "Kết nối với cơ sở dữ liệu, API, hoặc khám phá khả năng mới trong MCP Marketplace.",
+	
+	"walkthrough.step5.title": "Bạn Luôn Kiểm soát",
+	"walkthrough.step5.description": "Xem xét kế hoạch và diff của Cline. Phê duyệt thay đổi trước khi chúng xảy ra. Không có bất ngờ.",
+	
+	"viewsContainers.activitybar.title": "Cline",
+	
+	"commands.plusButtonClicked.title": "Nhiệm vụ Mới",
+	"commands.mcpButtonClicked.title": "MCP Servers",
+	"commands.historyButtonClicked.title": "Lịch sử",
+	"commands.accountButtonClicked.title": "Tài khoản",
+	"commands.settingsButtonClicked.title": "Cài đặt",
+	
+	"commands.createTestTasks.title": "Tạo Nhiệm vụ Kiểm thử",
+	"commands.expireMcpOAuthTokens.title": "Hết hạn MCP OAuth Tokens (để kiểm thử)",
+	"commands.addToChat.title": "Thêm vào Cline",
+	"commands.addTerminalOutputToChat.title": "Thêm vào Cline",
+	"commands.focusChatInput.title": "Nhảy đến Ô Chat",
+	"commands.generateGitCommitMessage.title": "Tạo Commit Message với Cline",
+	"commands.abortGitCommitMessage.title": "Tạo Commit Message với Cline - Dừng",
+	"commands.explainCode.title": "Giải thích với Cline",
+	"commands.improveCode.title": "Cải thiện với Cline",
+	"commands.openWalkthrough.title": "Mở Hướng dẫn",
+	"commands.reconstructTaskHistory.title": "Tái tạo Lịch sử Nhiệm vụ",
+	
+	"configuration.title": "Cline"
+}

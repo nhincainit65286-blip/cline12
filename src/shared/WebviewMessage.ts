@@ -21,3 +21,9 @@ export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "message
 export type ClineCheckpointRestore = "task" | "workspace" | "taskAndWorkspace"
 
 export type TaskFeedbackType = "thumbs_up" | "thumbs_down"
+
+// Task Documentation Settings
+export interface TaskDocumentationSettings {
+	enabled: boolean
+	progressTracking: boolean
+}

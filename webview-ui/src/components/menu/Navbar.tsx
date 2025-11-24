@@ -2,6 +2,7 @@ import { HistoryIcon, PlusIcon, SettingsIcon, UserCircleIcon } from "lucide-reac
 import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useTranslation } from "@/hooks/useTranslation"
 import { TaskServiceClient } from "@/services/grpc-client"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 
@@ -15,13 +16,14 @@ const McpServerIcon = ({ className, size }: { className?: string; size?: number 
 
 export const Navbar = () => {
 	const { navigateToHistory, navigateToSettings, navigateToAccount, navigateToMcp, navigateToChat } = useExtensionState()
+	const { t } = useTranslation()
 
 	const SETTINGS_TABS = useMemo(
 		() => [
 			{
 				id: "chat",
-				name: "Chat",
-				tooltip: "New Task",
+				name: t("menu.newTask"),
+				tooltip: t("menu.newTask"),
 				icon: PlusIcon,
 				navigate: () => {
 					// Close the current task, then navigate to the chat view
@@ -34,34 +36,34 @@ export const Navbar = () => {
 			},
 			{
 				id: "mcp",
-				name: "MCP",
-				tooltip: "MCP Servers",
+				name: t("menu.mcpServers"),
+				tooltip: t("menu.mcpServers"),
 				icon: McpServerIcon,
 				navigate: navigateToMcp,
 			},
 			{
 				id: "history",
-				name: "History",
-				tooltip: "History",
+				name: t("menu.history"),
+				tooltip: t("menu.history"),
 				icon: HistoryIcon,
 				navigate: navigateToHistory,
 			},
 			{
 				id: "account",
-				name: "Account",
-				tooltip: "Account",
+				name: t("menu.account"),
+				tooltip: t("menu.account"),
 				icon: UserCircleIcon,
 				navigate: navigateToAccount,
 			},
 			{
 				id: "settings",
-				name: "Settings",
-				tooltip: "Settings",
+				name: t("menu.settings"),
+				tooltip: t("menu.settings"),
 				icon: SettingsIcon,
 				navigate: navigateToSettings,
 			},
 		],
-		[navigateToAccount, navigateToChat, navigateToHistory, navigateToMcp, navigateToSettings],
+		[navigateToAccount, navigateToChat, navigateToHistory, navigateToMcp, navigateToSettings, t],
 	)
 
 	return (

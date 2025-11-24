@@ -3,6 +3,7 @@ import { GetTaskHistoryRequest, TaskFavoriteRequest } from "@shared/proto/cline/
 import { VSCodeButton, VSCodeCheckbox, VSCodeRadio, VSCodeRadioGroup, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import Fuse, { FuseResult } from "fuse.js"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Virtuoso } from "react-virtuoso"
 import DangerButton from "@/components/common/DangerButton"
 import { useExtensionState } from "@/context/ExtensionStateContext"
@@ -46,6 +47,7 @@ const CustomFilterRadio = ({ checked, onChange, icon, label }: CustomFilterRadio
 }
 
 const HistoryView = ({ onDone }: HistoryViewProps) => {
+	const { t } = useTranslation()
 	const extensionStateContext = useExtensionState()
 	const { taskHistory, onRelinquishControl, environment } = extensionStateContext
 	const [searchQuery, setSearchQuery] = useState("")
@@ -311,9 +313,9 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							color: getEnvironmentColor(environment),
 							margin: 0,
 						}}>
-						History
+						{t("historyView.title")}
 					</h3>
-					<VSCodeButton onClick={() => onDone()}>Done</VSCodeButton>
+					<VSCodeButton onClick={() => onDone()}>{t("historyView.done")}</VSCodeButton>
 				</div>
 				<div style={{ padding: "5px 17px 6px 17px" }}>
 					<div className="flex flex-col gap-3">
@@ -326,7 +328,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 									setSortOption("mostRelevant")
 								}
 							}}
-							placeholder="Fuzzy search history..."
+							placeholder={t("historyView.searchPlaceholder")}
 							style={{ width: "100%" }}
 							value={searchQuery}>
 							<div
@@ -339,7 +341,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 								}}></div>
 							{searchQuery && (
 								<div
-									aria-label="Clear search"
+									aria-label={t("historyView.clearSearch")}
 									className="input-icon-button codicon codicon-close"
 									onClick={() => setSearchQuery("")}
 									slot="end"
@@ -356,30 +358,30 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							className="flex flex-wrap"
 							onChange={(e) => setSortOption((e.target as HTMLInputElement).value as SortOption)}
 							value={sortOption}>
-							<VSCodeRadio value="newest">Newest</VSCodeRadio>
-							<VSCodeRadio value="oldest">Oldest</VSCodeRadio>
-							<VSCodeRadio value="mostExpensive">Most Expensive</VSCodeRadio>
-							<VSCodeRadio value="mostTokens">Most Tokens</VSCodeRadio>
+							<VSCodeRadio value="newest">{t("historyView.sortNewest")}</VSCodeRadio>
+							<VSCodeRadio value="oldest">{t("historyView.sortOldest")}</VSCodeRadio>
+							<VSCodeRadio value="mostExpensive">{t("historyView.sortMostExpensive")}</VSCodeRadio>
+							<VSCodeRadio value="mostTokens">{t("historyView.sortMostTokens")}</VSCodeRadio>
 							<VSCodeRadio disabled={!searchQuery} style={{ opacity: searchQuery ? 1 : 0.5 }} value="mostRelevant">
-								Most Relevant
+								{t("historyView.sortMostRelevant")}
 							</VSCodeRadio>
 							<CustomFilterRadio
 								checked={showCurrentWorkspaceOnly}
 								icon="workspace"
-								label="Workspace"
+								label={t("historyView.filterWorkspace")}
 								onChange={() => setShowCurrentWorkspaceOnly(!showCurrentWorkspaceOnly)}
 							/>
 							<CustomFilterRadio
 								checked={showFavoritesOnly}
 								icon="star-full"
-								label="Favorites"
+								label={t("historyView.filterFavorites")}
 								onChange={() => setShowFavoritesOnly(!showFavoritesOnly)}
 							/>
 						</VSCodeRadioGroup>
 
 						<div className="flex justify-end gap-2.5">
-							<VSCodeButton onClick={() => handleBatchHistorySelect(true)}>Select All</VSCodeButton>
-							<VSCodeButton onClick={() => handleBatchHistorySelect(false)}>Select None</VSCodeButton>
+							<VSCodeButton onClick={() => handleBatchHistorySelect(true)}>{t("historyView.selectAll")}</VSCodeButton>
+							<VSCodeButton onClick={() => handleBatchHistorySelect(false)}>{t("historyView.selectNone")}</VSCodeButton>
 						</div>
 					</div>
 				</div>
@@ -436,7 +438,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 											{!(pendingFavoriteToggles[item.id] ?? item.isFavorited) && (
 												<VSCodeButton
 													appearance="icon"
-													aria-label="Delete"
+													aria-label={t("historyView.delete")}
 													className="delete-button"
 													onClick={(e) => {
 														e.stopPropagation()
@@ -457,7 +459,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 											)}
 											<VSCodeButton
 												appearance="icon"
-												aria-label={item.isFavorited ? "Remove from favorites" : "Add to favorites"}
+												aria-label={item.isFavorited ? t("historyView.removeFromFavorites") : t("historyView.addToFavorites")}
 												onClick={(e) => {
 													e.stopPropagation()
 													toggleFavorite(item.id, item.isFavorited || false)
@@ -534,7 +536,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 														fontWeight: 500,
 														color: "var(--vscode-descriptionForeground)",
 													}}>
-													Tokens:
+													{t("welcome.tokens")}:
 												</span>
 												<span
 													style={{
@@ -587,7 +589,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 														fontWeight: 500,
 														color: "var(--vscode-descriptionForeground)",
 													}}>
-													Cache:
+													{t("welcome.cache")}:
 												</span>
 												{item.cacheWrites > 0 && (
 													<span
@@ -629,7 +631,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 												)}
 											</div>
 										)}
-										{item.modelId && <div className="text-description">Model: {item.modelId}</div>}
+										{item.modelId && <div className="text-description">{t("historyView.model")}: {item.modelId}</div>}
 										{!!item.totalCost && (
 											<div
 												style={{
@@ -649,7 +651,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 															fontWeight: 500,
 															color: "var(--vscode-descriptionForeground)",
 														}}>
-														API Cost:
+														{t("welcome.apiCost")}:
 													</span>
 													<span
 														style={{
@@ -678,17 +680,19 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 					}}>
 					{selectedItems.length > 0 ? (
 						<DangerButton
-							aria-label="Delete selected items"
+							aria-label={t("historyView.deleteSelected", { count: selectedItems.length })}
 							onClick={() => {
 								handleDeleteSelectedHistoryItems(selectedItems)
 							}}
 							style={{ width: "100%" }}>
-							Delete {selectedItems.length > 1 ? selectedItems.length : ""} Selected
+							{selectedItems.length > 1 
+								? t("historyView.deleteSelected", { count: selectedItems.length })
+								: t("historyView.deleteSelected", { count: 1 })}
 							{selectedItemsSize > 0 ? ` (${formatSize(selectedItemsSize)})` : ""}
 						</DangerButton>
 					) : (
 						<DangerButton
-							aria-label="Delete all history"
+							aria-label={t("historyView.deleteAllHistory")}
 							disabled={deleteAllDisabled || taskHistory.length === 0}
 							onClick={() => {
 								setDeleteAllDisabled(true)
@@ -698,7 +702,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 									.finally(() => setDeleteAllDisabled(false))
 							}}
 							style={{ width: "100%" }}>
-							Delete All History{totalTasksSize !== null ? ` (${formatSize(totalTasksSize)})` : ""}
+							{t("historyView.deleteAllHistory")}{totalTasksSize !== null ? ` (${formatSize(totalTasksSize)})` : ""}
 						</DangerButton>
 					)}
 				</div>
@@ -707,20 +711,23 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 	)
 }
 
-const ExportButton = ({ itemId }: { itemId: string }) => (
-	<VSCodeButton
-		appearance="icon"
-		aria-label="Export"
-		className="export-button"
-		onClick={(e) => {
-			e.stopPropagation()
-			TaskServiceClient.exportTaskWithId(StringRequest.create({ value: itemId })).catch((err) =>
-				console.error("Failed to export task:", err),
-			)
-		}}>
-		<div style={{ fontSize: "11px", fontWeight: 500, opacity: 1 }}>EXPORT</div>
-	</VSCodeButton>
-)
+const ExportButton = ({ itemId }: { itemId: string }) => {
+	const { t } = useTranslation()
+	return (
+		<VSCodeButton
+			appearance="icon"
+			aria-label={t("historyView.export")}
+			className="export-button"
+			onClick={(e) => {
+				e.stopPropagation()
+				TaskServiceClient.exportTaskWithId(StringRequest.create({ value: itemId })).catch((err) =>
+					console.error("Failed to export task:", err),
+				)
+			}}>
+			<div style={{ fontSize: "11px", fontWeight: 500, opacity: 1 }}>{t("historyView.export")}</div>
+		</VSCodeButton>
+	)
+}
 
 // https://gist.github.com/evenfrost/1ba123656ded32fb7a0cd4651efd4db0
 export const highlight = (fuseSearchResult: FuseResult<any>[], highlightClassName: string = "history-item-highlight") => {

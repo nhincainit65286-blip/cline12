@@ -1,4 +1,5 @@
 import { VSCodeCheckbox, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
+import { useTranslation } from "react-i18next"
 import { updateAutoApproveSettings } from "@/components/chat/auto-approve-menu/AutoApproveSettingsAPI"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
@@ -11,6 +12,7 @@ interface GeneralSettingsSectionProps {
 }
 
 const GeneralSettingsSection = ({ renderSectionHeader }: GeneralSettingsSectionProps) => {
+	const { t } = useTranslation()
 	const { telemetrySetting, remoteConfigSettings, autoApprovalSettings } = useExtensionState()
 
 	return (
@@ -30,18 +32,18 @@ const GeneralSettingsSection = ({ renderSectionHeader }: GeneralSettingsSectionP
 								enableNotifications: checked,
 							})
 						}}>
-						Enable notifications
+						{t("generalSettings.enableNotifications")}
 					</VSCodeCheckbox>
 
 					<p className="text-sm mt-[5px] text-description">
-						Receive system notifications when Cline requires approval to proceed or when a task is completed.
+						{t("generalSettings.enableNotificationsDesc")}
 					</p>
 				</div>
 
 				<div className="mb-[5px]">
 					<Tooltip>
 						<TooltipContent hidden={remoteConfigSettings?.telemetrySetting === undefined}>
-							This setting is managed by your organization's remote configuration
+							{t("generalSettings.managedByOrg")}
 						</TooltipContent>
 						<TooltipTrigger asChild>
 							<div className="flex items-center gap-2 mb-[5px]">
@@ -52,7 +54,7 @@ const GeneralSettingsSection = ({ renderSectionHeader }: GeneralSettingsSectionP
 										const checked = e.target.checked === true
 										updateSetting("telemetrySetting", checked ? "enabled" : "disabled")
 									}}>
-									Allow error and usage reporting
+									{t("generalSettings.allowTelemetry")}
 								</VSCodeCheckbox>
 								{!!remoteConfigSettings?.telemetrySetting && (
 									<i className="codicon codicon-lock text-description text-sm" />
@@ -62,22 +64,21 @@ const GeneralSettingsSection = ({ renderSectionHeader }: GeneralSettingsSectionP
 					</Tooltip>
 
 					<p className="text-sm mt-[5px] text-description">
-						Help improve Cline by sending usage data and error reports. No code, prompts, or personal information are
-						ever sent. See our{" "}
+						{t("generalSettings.allowTelemetryDesc")}{" "}
 						<VSCodeLink
 							className="text-inherit"
 							href="https://docs.cline.bot/more-info/telemetry"
 							style={{ fontSize: "inherit", textDecoration: "underline" }}>
-							telemetry overview
+							{t("generalSettings.telemetryOverview")}
 						</VSCodeLink>{" "}
-						and{" "}
+						{t("generalSettings.and")}{" "}
 						<VSCodeLink
 							className="text-inherit"
 							href="https://cline.bot/privacy"
 							style={{ fontSize: "inherit", textDecoration: "underline" }}>
-							privacy policy
+							{t("generalSettings.privacyPolicy")}
 						</VSCodeLink>{" "}
-						for more details.
+						{t("generalSettings.forMoreDetails")}
 					</p>
 				</div>
 			</Section>

@@ -28,6 +28,8 @@ import { accountLogoutClicked } from "../account/accountLogoutClicked"
  */
 export async function updateSettings(controller: Controller, request: UpdateSettingsRequest): Promise<Empty> {
 	try {
+		console.log("=== UPDATE SETTINGS HANDLER CALLED ===")
+		console.log("request:", JSON.stringify(request, null, 2))
 		if (request.clineEnv !== undefined) {
 			ClineEnv.setEnvironment(request.clineEnv)
 			await accountLogoutClicked(controller, Empty.create())
@@ -365,6 +367,34 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 					request.nativeToolCallEnabled,
 					controller.task.api.getModel().id,
 				)
+			}
+		}
+
+		// Update task documentation setting
+		if (request.taskDocumentationEnabled !== undefined) {
+			controller.stateManager.setGlobalState("taskDocumentationEnabled", !!request.taskDocumentationEnabled)
+		}
+
+		// Update task progress tracking setting
+		if (request.taskProgressTrackingEnabled !== undefined) {
+			controller.stateManager.setGlobalState("taskProgressTrackingEnabled", !!request.taskProgressTrackingEnabled)
+		}
+
+		// Update token saving setting
+		if (request.tokenSavingEnabled !== undefined) {
+			console.log("=== UPDATE TOKEN SAVING ===")
+			console.log("tokenSavingEnabled:", request.tokenSavingEnabled)
+			controller.stateManager.setGlobalState("tokenSavingEnabled", !!request.tokenSavingEnabled)
+		}
+
+		// Update compression level setting
+		if (request.compressionLevel !== undefined) {
+			console.log("=== UPDATE COMPRESSION LEVEL ===")
+			console.log("compressionLevel:", request.compressionLevel)
+			const validLevels = ["none", "light", "medium", "aggressive"] as const
+			const level = request.compressionLevel as "none" | "light" | "medium" | "aggressive"
+			if (validLevels.includes(level)) {
+				controller.stateManager.setGlobalState("compressionLevel", level)
 			}
 		}
 

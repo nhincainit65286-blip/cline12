@@ -44,12 +44,32 @@ const convertToProtoValue = (field: keyof UpdateSettingsRequest, value: any): an
  * @param value - The new value for the field
  */
 export const updateSetting = (field: keyof UpdateSettingsRequest, value: any) => {
+	console.log("=== UPDATE SETTING CALLED ===")
+	console.log("field:", field)
+	console.log("value:", value)
+	
 	const updateRequest: Partial<UpdateSettingsRequest> = {}
 
 	const convertedValue = convertToProtoValue(field, value)
 	updateRequest[field] = convertedValue
+	
+	console.log("updateRequest before create:", updateRequest)
+	
+	const createdRequest = UpdateSettingsRequest.create({})
+	// Manually set the field to bypass proto create() bug
+	if (field === "tokenSavingEnabled") {
+		createdRequest.tokenSavingEnabled = convertedValue
+	} else if (field === "compressionLevel") {
+		createdRequest.compressionLevel = convertedValue
+	} else {
+		// For other fields, use the normal way
+		createdRequest[field] = convertedValue
+	}
+	
+	console.log("createdRequest after manual set:", createdRequest)
+	console.log("createdRequest.tokenSavingEnabled:", createdRequest.tokenSavingEnabled)
 
-	StateServiceClient.updateSettings(UpdateSettingsRequest.create(updateRequest)).catch((error) => {
+	StateServiceClient.updateSettings(createdRequest).catch((error) => {
 		console.error(`Failed to update setting ${field}:`, error)
 	})
 }

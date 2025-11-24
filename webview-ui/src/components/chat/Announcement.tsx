@@ -1,6 +1,7 @@
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { XIcon } from "lucide-react"
 import { CSSProperties, memo } from "react"
+import { useTranslation } from "react-i18next"
 import { useMount } from "react-use"
 import { Button } from "@/components/ui/button"
 import { useExtensionState } from "@/context/ExtensionStateContext"
@@ -37,6 +38,7 @@ The latestAnnouncementId is now automatically generated from the extension's pac
 Patch releases (3.19.1 → 3.19.2) will not trigger new announcements.
 */
 const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
+	const { t } = useTranslation()
 	const minorVersion = version.split(".").slice(0, 2).join(".") // 2.0.0 -> 2.0
 	const { refreshOpenRouterModels } = useExtensionState()
 	// Need to get latest model list in case user hits shortcut button to set model
@@ -49,11 +51,12 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				data-testid="close-announcement-button"
 				onClick={hideAnnouncement}
 				size="icon"
+				title={t("announcement.closeButton")}
 				variant="icon">
 				<XIcon />
 			</Button>
 			<h4 style={h4TitleStyle}>
-				🎉{"  "}New in v{minorVersion}
+				🎉{"  "}{t("announcement.newInVersion")}{minorVersion}
 			</h4>
 			<ul style={ulStyle}>
 				<li>
@@ -69,7 +72,7 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 			</ul>
 			<div style={hrStyle} />
 			<p style={linkContainerStyle}>
-				Join us on{" "}
+				{t("announcement.joinUs")}{" "}
 				<VSCodeLink href="https://x.com/cline" style={linkStyle}>
 					X,
 				</VSCodeLink>{" "}
@@ -79,8 +82,8 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				or{" "}
 				<VSCodeLink href="https://www.reddit.com/r/cline/" style={linkStyle}>
 					r/cline
-				</VSCodeLink>
-				for more updates!
+				</VSCodeLink>{" "}
+				{t("announcement.forMoreUpdates")}
 			</p>
 		</div>
 	)

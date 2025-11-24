@@ -3,6 +3,7 @@ import { EmptyRequest } from "@shared/proto/index.cline"
 import { OpenaiReasoningEffort } from "@shared/storage/types"
 import { VSCodeButton, VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { memo, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import McpDisplayModeDropdown from "@/components/mcp/chat-display/McpDisplayModeDropdown"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { PLATFORM_CONFIG, PlatformType } from "@/config/platform.config"
@@ -18,6 +19,7 @@ interface FeatureSettingsSectionProps {
 }
 
 const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionProps) => {
+	const { t } = useTranslation()
 	const {
 		enableCheckpointsSetting,
 		mcpMarketplaceEnabled,
@@ -34,9 +36,20 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 		remoteConfigSettings,
 		subagentsEnabled,
 		nativeToolCallSetting,
+		taskDocumentationEnabled,
+		taskProgressTrackingEnabled,
+		tokenSavingEnabled,
+		compressionLevel,
 	} = useExtensionState()
 
 	const [isClineCliInstalled, setIsClineCliInstalled] = useState(false)
+
+	// Debug: Log token saving state
+	useEffect(() => {
+		console.log("=== TOKEN SAVING STATE ===")
+		console.log("tokenSavingEnabled:", tokenSavingEnabled)
+		console.log("compressionLevel:", compressionLevel)
+	}, [tokenSavingEnabled, compressionLevel])
 
 	const handleReasoningEffortChange = (newValue: OpenaiReasoningEffort) => {
 		updateSetting("openaiReasoningEffort", newValue)
@@ -98,7 +111,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 										className="codicon codicon-warning mr-1"
 										style={{ fontSize: "12px", marginTop: "1px", flexShrink: 0 }}></span>
 									<span>
-										Cline for CLI is required for subagents. Install it with:
+										{t("settings.features.cliRequired")}
 										<code
 											className="ml-1 px-1 rounded"
 											style={{
@@ -106,7 +119,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 												color: "var(--vscode-foreground)",
 												opacity: 0.9,
 											}}>
-											npm install -g cline
+											{t("settings.features.cliInstallCommand")}
 										</code>
 										, then run
 										<code
@@ -116,9 +129,9 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 												color: "var(--vscode-foreground)",
 												opacity: 0.9,
 											}}>
-											cline auth
+											{t("settings.features.cliAuthCommand")}
 										</code>
-										To authenticate with Cline or configure an API provider.
+										{t("settings.features.cliAuthDesc")}
 									</span>
 								</p>
 								{!isClineCliInstalled && (
@@ -136,7 +149,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 											transformOrigin: "left center",
 											marginLeft: "-2px",
 										}}>
-										Install Now
+										{t("settings.features.installNow")}
 									</VSCodeButton>
 								)}
 							</div>
@@ -147,16 +160,10 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 									const checked = e.target.checked === true
 									updateSetting("subagentsEnabled", checked)
 								}}>
-								<span className="font-semibold">
-									{subagentsEnabled ? "Subagents Enabled" : "Enable Subagents"}
-								</span>
+								<span className="font-semibold">{t("settings.features.subagents")}</span>
 							</VSCodeCheckbox>
 							<p className="text-xs mt-1 mb-0">
-								<span className="text-[var(--vscode-errorForeground)]">Experimental: </span>{" "}
-								<span className="text-description">
-									Allows Cline to spawn subprocesses to handle focused tasks like exploring large codebases,
-									keeping your main context clean.
-								</span>
+								<span className="text-description">{t("settings.features.subagentsDesc")}</span>
 							</p>
 							{subagentsEnabled && (
 								<div className="mt-3">
@@ -173,12 +180,9 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								const checked = e.target.checked === true
 								updateSetting("enableCheckpointsSetting", checked)
 							}}>
-							Enable Checkpoints
+							{t("settings.features.checkpoints")}
 						</VSCodeCheckbox>
-						<p className="text-xs text-(--vscode-descriptionForeground)">
-							Enables extension to save checkpoints of workspace throughout the task. Uses git under the hood which
-							may not work well with large workspaces.
-						</p>
+						<p className="text-xs text-(--vscode-descriptionForeground)">{t("settings.features.checkpointsDesc")}</p>
 					</div>
 					<div style={{ marginTop: 10 }}>
 						<Tooltip>
@@ -191,7 +195,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 											const checked = e.target.checked === true
 											updateSetting("mcpMarketplaceEnabled", checked)
 										}}>
-										Enable MCP Marketplace
+										{t("settings.features.mcpMarketplace")}
 									</VSCodeCheckbox>
 									{remoteConfigSettings?.mcpMarketplaceEnabled !== undefined && (
 										<i className="codicon codicon-lock text-description text-sm" />
@@ -203,15 +207,13 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 							</TooltipContent>
 						</Tooltip>
 
-						<p className="text-xs text-description">
-							Enables the MCP Marketplace tab for discovering and installing MCP servers.
-						</p>
+						<p className="text-xs text-description">{t("settings.features.mcpMarketplaceDesc")}</p>
 					</div>
 					<div style={{ marginTop: 10 }}>
 						<label
 							className="block text-sm font-medium text-(--vscode-foreground) mb-1"
 							htmlFor="mcp-display-mode-dropdown">
-							MCP Display Mode
+							{t("settings.features.mcpDisplayMode")}
 						</label>
 						<McpDisplayModeDropdown
 							className="w-full"
@@ -220,8 +222,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 							value={mcpDisplayMode}
 						/>
 						<p className="text-xs mt-[5px] text-(--vscode-descriptionForeground)">
-							Controls how MCP responses are displayed: plain text, rich formatting with links/images, or markdown
-							rendering.
+							{t("settings.features.mcpDisplayModeDesc")}
 						</p>
 					</div>
 					<div style={{ marginTop: 10 }}>
@@ -231,17 +232,17 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								const checked = e.target.checked === true
 								updateSetting("mcpResponsesCollapsed", checked)
 							}}>
-							Collapse MCP Responses
+							{t("settings.features.mcpResponsesCollapsed")}
 						</VSCodeCheckbox>
 						<p className="text-xs text-(--vscode-descriptionForeground)">
-							Sets the default display mode for MCP response panels
+							{t("settings.features.mcpResponsesCollapsedDesc")}
 						</p>
 					</div>
 					<div style={{ marginTop: 10 }}>
 						<label
 							className="block text-sm font-medium text-(--vscode-foreground) mb-1"
 							htmlFor="openai-reasoning-effort-dropdown">
-							OpenAI Reasoning Effort
+							{t("settings.features.reasoningEffort")}
 						</label>
 						<VSCodeDropdown
 							className="w-full"
@@ -251,13 +252,13 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								const newValue = e.target.currentValue as OpenaiReasoningEffort
 								handleReasoningEffortChange(newValue)
 							}}>
-							<VSCodeOption value="minimal">Minimal</VSCodeOption>
-							<VSCodeOption value="low">Low</VSCodeOption>
-							<VSCodeOption value="medium">Medium</VSCodeOption>
-							<VSCodeOption value="high">High</VSCodeOption>
+							<VSCodeOption value="minimal">{t("settings.features.reasoningEffortMinimal")}</VSCodeOption>
+							<VSCodeOption value="low">{t("settings.features.reasoningEffortLow")}</VSCodeOption>
+							<VSCodeOption value="medium">{t("settings.features.reasoningEffortMedium")}</VSCodeOption>
+							<VSCodeOption value="high">{t("settings.features.reasoningEffortHigh")}</VSCodeOption>
 						</VSCodeDropdown>
 						<p className="text-xs mt-[5px] text-(--vscode-descriptionForeground)">
-							Reasoning effort for the OpenAI family of models(applies to all OpenAI model providers)
+							{t("settings.features.reasoningEffortDesc")}
 						</p>
 					</div>
 					<div style={{ marginTop: 10 }}>
@@ -267,10 +268,10 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								const checked = e.target.checked === true
 								updateSetting("strictPlanModeEnabled", checked)
 							}}>
-							Enable strict plan mode
+							{t("settings.features.strictPlanMode")}
 						</VSCodeCheckbox>
 						<p className="text-xs text-(--vscode-descriptionForeground)">
-							Enforces strict tool use while in plan mode, preventing file edits.
+							{t("settings.features.strictPlanModeDesc")}
 						</p>
 					</div>
 					{
@@ -281,11 +282,10 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 									const checked = e.target.checked === true
 									updateSetting("focusChainSettings", { ...focusChainSettings, enabled: checked })
 								}}>
-								Enable Focus Chain
+								{t("settings.features.focusChain")}
 							</VSCodeCheckbox>
 							<p className="text-xs text-(--vscode-descriptionForeground)">
-								Enables enhanced task progress tracking and automatic focus chain list management throughout
-								tasks.
+								{t("settings.features.focusChainDesc")}
 							</p>
 						</div>
 					}
@@ -294,7 +294,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 							<label
 								className="block text-sm font-medium text-(--vscode-foreground) mb-1"
 								htmlFor="focus-chain-remind-interval">
-								Focus Chain Reminder Interval
+								{t("settings.features.focusChainInterval")}
 							</label>
 							<VSCodeTextField
 								className="w-20"
@@ -311,8 +311,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								value={String(focusChainSettings?.remindClineInterval || 6)}
 							/>
 							<p className="text-xs mt-[5px] text-(--vscode-descriptionForeground)">
-								Interval (in messages) to remind Cline about its focus chain checklist (1-100). Lower values
-								provide more frequent reminders.
+								{t("settings.features.focusChainIntervalDesc")}
 							</p>
 						</div>
 					)}
@@ -343,16 +342,16 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								const checked = e.target.checked === true
 								updateSetting("useAutoCondense", checked)
 							}}>
-							Enable Auto Compact
+							{t("settings.features.autoCompact")}
 						</VSCodeCheckbox>
 						<p className="text-xs text-(--vscode-descriptionForeground)">
-							Enables advanced context management system which uses LLM based condensing for next-gen models.{" "}
+							{t("settings.features.autoCompactDesc")}{" "}
 							<a
 								className="text-(--vscode-textLink-foreground) hover:text-(--vscode-textLink-activeForeground)"
 								href="https://docs.cline.bot/features/auto-compact"
 								rel="noopener noreferrer"
 								target="_blank">
-								Learn more
+								{t("settings.features.autoCompactLearnMore")}
 							</a>
 						</p>
 					</div>
@@ -364,11 +363,10 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 									const checked = e.target.checked === true
 									updateSetting("multiRootEnabled", checked)
 								}}>
-								Enable Multi-Root Workspace
+								{t("settings.features.multiRoot")}
 							</VSCodeCheckbox>
 							<p className="text-xs">
-								<span className="text-(--vscode-errorForeground)">Experimental: </span>{" "}
-								<span className="text-description">Allows cline to work across multiple workspaces.</span>
+								<span className="text-description">{t("settings.features.multiRootDesc")}</span>
 							</p>
 						</div>
 					)}
@@ -380,21 +378,11 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								const checked = e.target.checked === true
 								updateSetting("hooksEnabled", checked)
 							}}>
-							Enable Hooks
+							{t("settings.features.hooks")}
 						</VSCodeCheckbox>
-						{!isMacOSOrLinux() ? (
-							<p className="text-xs mt-1" style={{ color: "var(--vscode-inputValidation-warningForeground)" }}>
-								Hooks are not yet supported on Windows. This feature is currently available on macOS and Linux
-								only.
-							</p>
-						) : (
-							<p className="text-xs">
-								<span className="text-(--vscode-errorForeground)">Experimental: </span>{" "}
-								<span className="text-description">
-									Allows execution of hooks from .clinerules/hooks/ directory.
-								</span>
-							</p>
-						)}
+						<p className="text-xs">
+							<span className="text-description">{t("settings.features.hooksDesc")}</span>
+						</p>
 					</div>
 					{nativeToolCallSetting?.featureFlag && (
 						<div className="mt-2.5">
@@ -404,11 +392,10 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 									const enabled = (e?.target as HTMLInputElement).checked
 									updateSetting("nativeToolCallEnabled", enabled)
 								}}>
-								Enable Native Tool Call
+								{t("settings.features.nativeToolCall")}
 							</VSCodeCheckbox>
 							<p className="text-xs">
-								<span className="text-[var(--vscode-errorForeground)]">Experimental: </span>{" "}
-								<span className="text-description">Allows Cline to call tools through the native API.</span>
+								<span className="text-description">{t("settings.features.nativeToolCallDesc")}</span>
 							</p>
 						</div>
 					)}
@@ -423,7 +410,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 											const checked = e.target.checked === true
 											updateSetting("yoloModeToggled", checked)
 										}}>
-										Enable YOLO Mode
+										{t("settings.features.yoloMode")}
 									</VSCodeCheckbox>
 									{remoteConfigSettings?.yoloModeToggled !== undefined && (
 										<i className="codicon codicon-lock text-description text-sm" />
@@ -438,10 +425,216 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 							</TooltipContent>
 						</Tooltip>
 
-						<p className="text-xs text-(--vscode-errorForeground)">
-							EXPERIMENTAL & DANGEROUS: This mode disables safety checks and user confirmations. Cline will
-							automatically approve all actions without asking. Use with extreme caution.
-						</p>
+						<p className="text-xs text-(--vscode-errorForeground)">{t("settings.features.yoloModeDesc")}</p>
+					</div>
+
+					{/* Token Saving */}
+					<div style={{ marginTop: 20 }}>
+						<div
+							style={{
+								padding: 12,
+								border: "1px solid var(--vscode-charts-green)",
+								borderRadius: 6,
+								backgroundColor: "var(--vscode-editor-background)",
+							}}>
+							<div className="flex items-center gap-2 mb-2">
+								<VSCodeCheckbox
+									checked={tokenSavingEnabled ?? false}
+									onChange={(e: any) => {
+										const checked = e.target.checked === true
+										updateSetting("tokenSavingEnabled", checked)
+									}}>
+									<span style={{ fontWeight: 600 }}>{t("settings.features.tokenSaving")}</span>
+								</VSCodeCheckbox>
+								<div
+									className="px-2 py-0.5 rounded text-xs font-semibold"
+									style={{
+										backgroundColor: "var(--vscode-charts-green)",
+										color: "var(--vscode-editor-background)",
+									}}>
+									SAVE $$
+								</div>
+							</div>
+							<p className="text-xs" style={{ color: "var(--vscode-descriptionForeground)", marginBottom: 10 }}>
+								{t("settings.features.tokenSavingDesc")}
+							</p>
+
+							{/* Compression Level */}
+							{tokenSavingEnabled && (
+								<div style={{ marginTop: 10, marginLeft: 20 }}>
+									<label style={{ fontSize: "12px", fontWeight: 500, display: "block", marginBottom: 5 }}>
+										{t("settings.features.tokenSavingLevel")}
+									</label>
+									<VSCodeDropdown
+										onChange={(e: any) => {
+											updateSetting("compressionLevel", e.target.value)
+										}}
+										style={{ width: "100%" }}
+										value={compressionLevel ?? "medium"}>
+										<VSCodeOption value="none">{t("settings.features.tokenSavingLevelNone")}</VSCodeOption>
+										<VSCodeOption value="light">{t("settings.features.tokenSavingLevelLow")}</VSCodeOption>
+										<VSCodeOption value="medium">
+											{t("settings.features.tokenSavingLevelMedium")}
+										</VSCodeOption>
+										<VSCodeOption value="aggressive">
+											{t("settings.features.tokenSavingLevelAggressive")}
+										</VSCodeOption>
+									</VSCodeDropdown>
+									<p className="text-xs" style={{ color: "var(--vscode-descriptionForeground)", marginTop: 5 }}>
+										{t("settings.features.tokenSavingLevelDesc")}
+									</p>
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* Task Documentation & Tracking */}
+					<div style={{ marginTop: 20 }}>
+						<div
+							style={{
+								padding: 12,
+								border: "1px solid var(--vscode-button-background)",
+								borderRadius: 6,
+								backgroundColor: "var(--vscode-editor-background)",
+							}}>
+							<div className="flex items-center gap-2 mb-2">
+								<VSCodeCheckbox
+									checked={taskDocumentationEnabled ?? false}
+									onChange={(e: any) => {
+										const checked = e.target.checked === true
+										console.log("=== TASK DOCUMENTATION CHECKBOX ===")
+										console.log("Current value:", taskDocumentationEnabled)
+										console.log("New value:", checked)
+										console.log("Calling updateSetting...")
+										updateSetting("taskDocumentationEnabled", checked)
+										console.log("updateSetting called")
+									}}>
+									<span style={{ fontWeight: 600 }}>{t("settings.features.taskDocumentation")}</span>
+								</VSCodeCheckbox>
+								<div
+									className="px-2 py-0.5 rounded text-xs font-semibold"
+									style={{
+										backgroundColor: "var(--vscode-statusBarItem-prominentBackground)",
+										color: "var(--vscode-statusBarItem-prominentForeground)",
+									}}>
+									POWERFUL
+								</div>
+							</div>
+							<p className="text-xs" style={{ color: "var(--vscode-descriptionForeground)", marginBottom: 10 }}>
+								{t("settings.features.taskDocumentationDesc")}
+							</p>
+
+							{/* Auto-generate Files Section */}
+							<div
+								style={{
+									marginTop: 10,
+									padding: 10,
+									backgroundColor: "var(--vscode-sideBar-background)",
+									borderRadius: 4,
+									border: "1px solid var(--vscode-panel-border)",
+								}}>
+								<div
+									style={{
+										fontSize: "12px",
+										fontWeight: 500,
+										marginBottom: 8,
+										color: "var(--vscode-foreground)",
+									}}>
+									<span className="codicon codicon-file-code mr-1"></span>
+									{t("settings.features.autoGenerateFiles")}:
+								</div>
+
+								{/* Task Files List */}
+								<div style={{ fontSize: "11px", color: "var(--vscode-descriptionForeground)" }}>
+									<div style={{ marginBottom: 6, display: "flex", alignItems: "start" }}>
+										<span className="codicon codicon-history mr-2" style={{ marginTop: 2 }}></span>
+										<div>
+											<div style={{ fontWeight: 500, color: "var(--vscode-foreground)" }}>
+												{t("settings.features.taskHistoryFile")}
+											</div>
+											<div style={{ fontSize: "10px", marginTop: 2 }}>
+												{t("settings.features.taskHistoryFileDesc")}
+											</div>
+										</div>
+									</div>
+
+									<div style={{ marginBottom: 6, display: "flex", alignItems: "start" }}>
+										<span className="codicon codicon-list-tree mr-2" style={{ marginTop: 2 }}></span>
+										<div>
+											<div style={{ fontWeight: 500, color: "var(--vscode-foreground)" }}>
+												{t("settings.features.taskPlanFile")}
+											</div>
+											<div style={{ fontSize: "10px", marginTop: 2 }}>
+												{t("settings.features.taskPlanFileDesc")}
+											</div>
+										</div>
+									</div>
+
+									<div style={{ display: "flex", alignItems: "start" }}>
+										<span className="codicon codicon-bug mr-2" style={{ marginTop: 2 }}></span>
+										<div>
+											<div style={{ fontWeight: 500, color: "var(--vscode-foreground)" }}>
+												{t("settings.features.debugInfoFile")}
+											</div>
+											<div style={{ fontSize: "10px", marginTop: 2 }}>
+												{t("settings.features.debugInfoFileDesc")}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							{/* Progress Tracking */}
+							<div style={{ marginTop: 10 }}>
+								<VSCodeCheckbox
+									checked={taskProgressTrackingEnabled ?? true}
+									onChange={(e: any) => {
+										const checked = e.target.checked === true
+										updateSetting("taskProgressTrackingEnabled", checked)
+									}}>
+									<span style={{ fontSize: "12px", fontWeight: 500 }}>
+										{t("settings.features.progressTracking")}
+									</span>
+								</VSCodeCheckbox>
+								<p
+									className="text-xs"
+									style={{ color: "var(--vscode-descriptionForeground)", marginTop: 3, marginLeft: 20 }}>
+									{t("settings.features.progressTrackingDesc")}
+								</p>
+							</div>
+
+							{/* File Location Info */}
+							<div
+								style={{
+									marginTop: 10,
+									padding: 8,
+									backgroundColor:
+										"color-mix(in srgb, var(--vscode-inputValidation-infoBackground) 30%, transparent)",
+									borderRadius: 4,
+									border: "1px solid var(--vscode-inputValidation-infoBorder)",
+								}}>
+								<div
+									style={{
+										fontSize: "11px",
+										color: "var(--vscode-foreground)",
+										display: "flex",
+										alignItems: "center",
+										gap: 6,
+									}}>
+									<span className="codicon codicon-folder"></span>
+									<span style={{ fontWeight: 500 }}>{t("settings.features.taskFileLocation")}</span>
+								</div>
+								<div
+									style={{
+										fontSize: "10px",
+										color: "var(--vscode-descriptionForeground)",
+										marginTop: 4,
+										fontFamily: "var(--vscode-editor-font-family)",
+									}}>
+									{t("settings.features.taskFileLocationDesc")}
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</Section>

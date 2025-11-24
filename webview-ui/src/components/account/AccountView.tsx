@@ -5,6 +5,7 @@ import { EmptyRequest } from "@shared/proto/cline/common"
 import { VSCodeButton, VSCodeDivider, VSCodeDropdown, VSCodeOption, VSCodeTag } from "@vscode/webview-ui-toolkit/react"
 import deepEqual from "fast-deep-equal"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useInterval } from "react-use"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { type ClineUser, handleSignOut } from "@/context/ClineAuthContext"
@@ -43,6 +44,7 @@ type CachedData = {
 const ClineEnvOptions = ["Production", "Staging", "Local"] as const
 
 const AccountView = ({ onDone, clineUser, organizations, activeOrganization }: AccountViewProps) => {
+	const { t } = useTranslation()
 	const { environment } = useExtensionState()
 	const titleColor = getClineEnvironmentClassname(environment)
 
@@ -50,9 +52,9 @@ const AccountView = ({ onDone, clineUser, organizations, activeOrganization }: A
 		<div className="fixed inset-0 flex flex-col overflow-hidden pt-[10px] pl-[20px]">
 			<div className="flex justify-between items-center mb-[17px] pr-[17px]">
 				<h3 className={cn("text-(--vscode-foreground) m-0", titleColor)}>
-					Account {environment !== "production" ? ` - ${environment} environment` : ""}
+					{t("account.title")} {environment !== "production" ? ` - ${environment} ${t("account.environment")}` : ""}
 				</h3>
-				<VSCodeButton onClick={onDone}>Done</VSCodeButton>
+				<VSCodeButton onClick={onDone}>{t("account.done")}</VSCodeButton>
 			</div>
 			<div className="grow overflow-hidden pr-[8px] flex flex-col">
 				<div className="h-full mb-1.5">

@@ -127,6 +127,10 @@ export interface Settings {
 	hooksEnabled: boolean
 	subagentsEnabled: boolean
 	hicapModelId: string | undefined
+	taskDocumentationEnabled: boolean
+	taskProgressTrackingEnabled: boolean
+	tokenSavingEnabled: boolean
+	compressionLevel: "none" | "light" | "medium" | "aggressive"
 
 	// Plan mode configurations
 	planModeApiProvider: ApiProvider

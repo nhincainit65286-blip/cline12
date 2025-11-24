@@ -2,6 +2,7 @@ import { Empty } from "@shared/proto/cline/common"
 import { ResetStateRequest } from "@shared/proto/cline/state"
 import { resetGlobalState, resetWorkspaceState } from "@/core/storage/utils/state-helpers"
 import { HostProvider } from "@/hosts/host-provider"
+import { t } from "@/shared/i18n"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import { Controller } from ".."
 import { sendChatButtonClickedEvent } from "../ui/subscribeToChatButtonClicked"
@@ -17,13 +18,13 @@ export async function resetState(controller: Controller, request: ResetStateRequ
 		if (request.global) {
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: "Resetting global state...",
+				message: t("general.loading"),
 			})
 			await resetGlobalState(controller)
 		} else {
 			HostProvider.window.showMessage({
 				type: ShowMessageType.INFORMATION,
-				message: "Resetting workspace state...",
+				message: t("general.loading"),
 			})
 			await resetWorkspaceState(controller)
 		}
@@ -35,7 +36,7 @@ export async function resetState(controller: Controller, request: ResetStateRequ
 
 		HostProvider.window.showMessage({
 			type: ShowMessageType.INFORMATION,
-			message: "State reset",
+			message: t("settings.reset"),
 		})
 		await controller.postStateToWebview()
 
@@ -46,7 +47,7 @@ export async function resetState(controller: Controller, request: ResetStateRequ
 		console.error("Error resetting state:", error)
 		HostProvider.window.showMessage({
 			type: ShowMessageType.ERROR,
-			message: `Failed to reset state: ${error instanceof Error ? error.message : String(error)}`,
+			message: t("settings.resetFailed", { error: error instanceof Error ? error.message : String(error) }),
 		})
 		throw error
 	}

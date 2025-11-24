@@ -13,7 +13,7 @@ import { WebviewProvider } from "./core/webview"
 import { createClineAPI } from "./exports"
 import { Logger } from "./services/logging/Logger"
 import { cleanupTestMode, initializeTestMode } from "./services/test/TestMode"
-import "./utils/path" // necessary to have access to String.prototype.toPosix
+import "./utils/path"; // necessary to have access to String.prototype.toPosix
 
 import path from "node:path"
 import type { ExtensionContext } from "vscode"
@@ -41,6 +41,7 @@ import { LogoutReason } from "./services/auth/types"
 import { telemetryService } from "./services/telemetry"
 import { SharedUriHandler } from "./services/uri/SharedUriHandler"
 import { ShowMessageType } from "./shared/proto/host/window"
+import { t } from "./shared/i18n"
 import { fileExistsAtPath } from "./utils/fs"
 /*
 Built using https://github.com/microsoft/vscode-webview-ui-toolkit
@@ -214,7 +215,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				console.error("Error getting terminal contents:", error)
 				HostProvider.window.showMessage({
 					type: ShowMessageType.ERROR,
-					message: "Failed to get terminal contents",
+					message: t("terminal.getContentsFailed"),
 				})
 			}
 		}),

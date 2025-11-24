@@ -1,27 +1,28 @@
 import { ApiConfiguration, ModelInfo } from "@shared/api"
 import {
-	GlobalState,
-	GlobalStateAndSettings,
-	GlobalStateAndSettingsKey,
-	GlobalStateKey,
-	LocalState,
-	LocalStateKey,
-	RemoteConfigFields,
-	SecretKey,
-	Secrets,
-	Settings,
-	SettingsKey,
+    GlobalState,
+    GlobalStateAndSettings,
+    GlobalStateAndSettingsKey,
+    GlobalStateKey,
+    LocalState,
+    LocalStateKey,
+    RemoteConfigFields,
+    SecretKey,
+    Secrets,
+    Settings,
+    SettingsKey,
 } from "@shared/storage/state-keys"
 import chokidar, { FSWatcher } from "chokidar"
 import type { ExtensionContext } from "vscode"
 import { HostProvider } from "@/hosts/host-provider"
+import { t } from "@/shared/i18n"
 import { ShowMessageType } from "@/shared/proto/index.host"
 import {
-	getTaskHistoryStateFilePath,
-	readTaskHistoryFromState,
-	readTaskSettingsFromStorage,
-	writeTaskHistoryToState,
-	writeTaskSettingsToStorage,
+    getTaskHistoryStateFilePath,
+    readTaskHistoryFromState,
+    readTaskSettingsFromStorage,
+    writeTaskHistoryToState,
+    writeTaskSettingsToStorage,
 } from "./disk"
 import { STATE_MANAGER_NOT_INITIALIZED } from "./error-messages"
 import { readGlobalStateFromDisk, readSecretsFromDisk, readWorkspaceStateFromDisk } from "./utils/state-helpers"
@@ -238,7 +239,7 @@ export class StateManager {
 			console.error("[StateManager] Failed to load task settings:", error)
 			HostProvider.window.showMessage({
 				type: ShowMessageType.ERROR,
-				message: `Failed to load task settings, defaulting to globally selected settings.`,
+				message: t("settings.loadFailed"),
 			})
 		}
 	}

@@ -18,6 +18,7 @@ import {
 	getLocalWindsurfRules,
 	refreshExternalRulesToggles,
 } from "@core/context/instructions/user-instructions/external-rules"
+import { TaskDocumentationIntegration } from "./documentation/TaskDocumentationIntegration"
 import { sendPartialMessageEvent } from "@core/controller/ui/subscribeToPartialMessage"
 import { ClineIgnoreController } from "@core/ignore/ClineIgnoreController"
 import { parseMentions } from "@core/mentions"
@@ -92,6 +93,7 @@ import {
 	ClineUserContent,
 } from "@/shared/messages/content"
 import { ShowMessageType } from "@/shared/proto/index.host"
+import { t } from "@/shared/i18n"
 import { isClineCliInstalled, isCliSubagentContext } from "@/utils/cli-detector"
 import { isInTestMode } from "../../services/test/TestMode"
 import { ensureLocalClineDirExists } from "../context/instructions/user-instructions/rule-helpers"
@@ -246,6 +248,11 @@ export class Task {
 
 	// Task Locking (Sqlite)
 	private taskLockAcquired: boolean
+
+	// Task Documentation
+	private taskDocumentation?: TaskDocumentationIntegration
+	private toolExecutionCount: number = 0
+	private estimatedTotalTools: number = 0
 
 	constructor(params: TaskParams) {
 		const {
@@ -427,7 +434,7 @@ export class Task {
 					const errorMessage = error instanceof Error ? error.message : "Unknown error"
 					HostProvider.window.showMessage({
 						type: ShowMessageType.ERROR,
-						message: `Failed to initialize checkpoint manager: ${errorMessage}`,
+						message: t("checkpoint.initFailed", { error: errorMessage }),
 					})
 				}
 			}
@@ -546,6 +553,14 @@ export class Task {
 			this.clearActiveHookExecution.bind(this),
 			this.getActiveHookExecution.bind(this),
 		)
+
+		// Initialize task documentation if enabled
+		const taskDocEnabled = this.stateManager.getGlobalSettingsKey("taskDocumentationEnabled")
+		const progressTrackingEnabled = this.stateManager.getGlobalSettingsKey("taskProgressTrackingEnabled")
+		if (taskDocEnabled) {
+			this.taskDocumentation = new TaskDocumentationIntegration(this.taskId, cwd)
+			// Enable will be called in startTask to avoid blocking constructor
+		}
 	}
 
 	// Communicate with webview
@@ -777,7 +792,7 @@ export class Task {
 			// this is a new non-partial message, so add it like normal
 			const sayTs = Date.now()
 			this.taskState.lastMessageTs = sayTs
-			await this.messageStateHandler.addToClineMessages({
+			const message: ClineMessage = {
 				ts: sayTs,
 				type: "say",
 				say: type,
@@ -785,7 +800,18 @@ export class Task {
 				images,
 				files,
 				modelInfo,
-			})
+			}
+			await this.messageStateHandler.addToClineMessages(message)
+
+			// Log to task documentation
+			if (this.taskDocumentation?.isEnabled()) {
+				try {
+					await this.taskDocumentation.onMessageAdded(message)
+				} catch (error) {
+					console.error("Failed to log message to task documentation:", error)
+				}
+			}
+
 			await this.postStateToWebview()
 			return sayTs
 		}
@@ -909,6 +935,18 @@ export class Task {
 			console.error("Failed to initialize ClineIgnoreController:", error)
 			// Optionally, inform the user or handle the error appropriately
 		}
+
+		// Initialize task documentation if enabled
+		if (this.taskDocumentation) {
+			try {
+				const progressTrackingEnabled = this.stateManager.getGlobalSettingsKey("taskProgressTrackingEnabled")
+				await this.taskDocumentation.enable(progressTrackingEnabled ?? true)
+				await this.taskDocumentation.onTaskStart(task || "No task description provided")
+			} catch (error) {
+				console.error("Failed to initialize task documentation:", error)
+			}
+		}
+
 		// conversationHistory (for API) and clineMessages (for webview) need to be in sync
 		// if the extension process were killed, then on restart the clineMessages might not be empty, so we need to set it to [] when we create a new Cline client (otherwise webview would show stale messages from previous session)
 		this.messageStateHandler.setClineMessages([])
@@ -1468,6 +1506,20 @@ export class Task {
 				this.FocusChainManager.dispose()
 			}
 		} finally {
+			// Generate final task documentation
+			if (this.taskDocumentation?.isEnabled()) {
+				try {
+					const clineMessages = this.messageStateHandler.getClineMessages()
+					const lastMessage = clineMessages.at(-1)
+					const wasSuccessful = lastMessage?.ask === "completion_result"
+					const baseTask = clineMessages.find((m) => m.say === "text")?.text || "Task"
+					
+					await this.taskDocumentation.onTaskComplete(baseTask, wasSuccessful)
+				} catch (error) {
+					console.error("Failed to generate final task documentation:", error)
+				}
+			}
+
 			// Release task folder lock
 			if (this.taskLockAcquired) {
 				try {
@@ -2385,6 +2437,23 @@ export class Task {
 			}
 			case "tool_use":
 				await this.toolExecutor.executeTool(block)
+				
+				// Track progress for task documentation
+				if (this.taskDocumentation?.isEnabled()) {
+					this.toolExecutionCount++
+					// Estimate total tools based on current progress (rough heuristic)
+					if (this.estimatedTotalTools === 0) {
+						this.estimatedTotalTools = 5 // Default estimate
+					}
+					try {
+						await this.taskDocumentation.updateSubtaskProgress(
+							this.toolExecutionCount,
+							Math.max(this.toolExecutionCount, this.estimatedTotalTools)
+						)
+					} catch (error) {
+						console.error("Failed to update task progress:", error)
+					}
+				}
 				break
 		}
 
@@ -2511,7 +2580,7 @@ export class Task {
 				this.taskState.checkpointManagerErrorMessage = errorMessage // will be displayed right away since we saveClineMessages next which posts state to webview
 				HostProvider.window.showMessage({
 					type: ShowMessageType.ERROR,
-					message: `Checkpoint initialization timed out: ${errorMessage}`,
+					message: t("checkpoint.initTimeout", { error: errorMessage }),
 				})
 			}
 		}
